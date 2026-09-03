@@ -1,0 +1,18 @@
+{
+  "projectName": "NarrativeEditor",
+  "buildScript": "ci/build.ps1",
+  "testScript": "ci/test.ps1",
+  "testResultsRoot": "artifacts/test-results",
+  "configuration": "Release",
+  "commonTestArguments": ["-ContinueOnFailure", "-SkipDependencyPreparation"],
+  "dependencyPreparation": { "enabled": true, "script": "frameworks/framework.narrative-runner/ci/prepare-dependencies.ps1", "arguments": ["-ModulesRoot", "modules"] },
+  "suites": [
+    { "id": "distribution", "label": "Distribution tests", "arguments": ["-SkipEditorTests", "-SkipRunnerTests", "-SkipModuleTests", "-SkipBackend"] },
+    { "id": "editor-core", "label": "Editor core tests (CLI, Application, Preview)", "arguments": ["-SkipDistribution", "-SkipRunnerTests", "-SkipModuleTests", "-SkipBackend", "-SkipWebTests", "-SkipBrowserTests"] },
+    { "id": "web", "label": "Web component tests", "arguments": ["-SkipDistribution", "-SkipRunnerTests", "-SkipModuleTests", "-SkipBackend", "-OnlyEditorTestProject", "Narrative.Editor.Web.Tests"] },
+    { "id": "browser", "label": "Browser tests", "arguments": ["-SkipDistribution", "-SkipRunnerTests", "-SkipModuleTests", "-SkipBackend", "-OnlyEditorTestProject", "Narrative.Editor.Web.BrowserTests"] },
+    { "id": "runner", "label": "Runner tests and neutral host", "arguments": ["-SkipDistribution", "-SkipEditorTests", "-SkipModuleTests", "-SkipBackend"] },
+    { "id": "modules", "label": "Module tests", "arguments": ["-SkipDistribution", "-SkipEditorTests", "-SkipRunnerTests", "-SkipBackend"] },
+    { "id": "backends", "label": "Backend tests", "arguments": ["-SkipDistribution", "-SkipEditorTests", "-SkipRunnerTests", "-SkipModuleTests"] }
+  ]
+}
