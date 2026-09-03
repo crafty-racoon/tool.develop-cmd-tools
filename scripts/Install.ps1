@@ -13,21 +13,43 @@ $ErrorActionPreference = 'Stop'
 try {
     New-Item -ItemType Directory -Path $temporaryRoot -Force | Out-Null
     [string]$archive = Join-Path $temporaryRoot 'package.zip'
+    [string]$source = ''
     if ([string]::IsNullOrWhiteSpace($PackagePath)) {
         [string]$reference = if ([string]::IsNullOrWhiteSpace($Version)) { 'refs/heads/main' } else { "refs/tags/v$Version" }
         [string]$url = "https://github.com/$Repository/archive/$reference.zip"
         Write-Host "Downloading $url"
-        Invoke-WebRequest -Uri $url -OutFile $archive -UseBasicParsing
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $archive -UseBasicParsing
+        } catch {
+            if ($null -eq (Get-Command gh -ErrorAction SilentlyContinue)) {
+                throw 'Anonymous download failed. Install and authenticate GitHub CLI to access a private repository.'
+            }
+            if (-not [string]::IsNullOrWhiteSpace($Version)) {
+                Write-Host "Using authenticated GitHub Release download for v$Version"
+                & gh release download "v$Version" --repo $Repository --pattern 'tool.develop-cmd-tools-*.zip' --dir $temporaryRoot
+                if ($LASTEXITCODE -ne 0) { throw "Could not download release v$Version from $Repository." }
+                [string]$downloadedArchive = @(Get-ChildItem -LiteralPath $temporaryRoot -Filter 'tool.develop-cmd-tools-*.zip')[0].FullName
+                Move-Item -LiteralPath $downloadedArchive -Destination $archive
+            } else {
+                Write-Host 'Using authenticated Git clone for the main branch'
+                [string]$cloneRoot = Join-Path $temporaryRoot 'repository'
+                & git clone --depth 1 "https://github.com/$Repository.git" $cloneRoot
+                if ($LASTEXITCODE -ne 0) { throw "Could not clone $Repository." }
+                $source = $cloneRoot
+            }
+        }
     } else {
         Copy-Item -LiteralPath (Resolve-Path -LiteralPath $PackagePath).Path -Destination $archive
     }
 
-    [string]$expanded = Join-Path $temporaryRoot 'expanded'
-    Expand-Archive -LiteralPath $archive -DestinationPath $expanded -Force
-    [string]$source = @(
-        Get-ChildItem -LiteralPath $expanded -Directory -Recurse |
-            Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'scripts/version.json') -PathType Leaf }
-    )[0].FullName
+    if ([string]::IsNullOrWhiteSpace($source)) {
+        [string]$expanded = Join-Path $temporaryRoot 'expanded'
+        Expand-Archive -LiteralPath $archive -DestinationPath $expanded -Force
+        $source = @(
+            Get-ChildItem -LiteralPath $expanded -Directory -Recurse |
+                Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'scripts/version.json') -PathType Leaf }
+        )[0].FullName
+    }
     if ([string]::IsNullOrWhiteSpace($source)) { throw 'The package does not contain tool.develop-cmd-tools.' }
 
     [string]$savedConfig = Join-Path $temporaryRoot 'develop-cmd-tools.local.json'
