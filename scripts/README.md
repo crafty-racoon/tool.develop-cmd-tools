@@ -28,9 +28,9 @@ runtime (for NarrativeEditor, the pinned .NET SDK).
 ## Package and install
 
 Run `Pack.cmd` to create a versioned ZIP and SHA-256 file. Run
-`Install Or Update.cmd C:\path\to\project` to install or update from the main
-branch. Add `-Version 1.0.0` after the project path to install a release tag, or
-use `-PackagePath C:\path\to\package.zip` for an offline package.
+`Install.cmd C:\path\to\project` to choose a release with an Up/Down menu and
+install it into that project. Run `Update.cmd` inside an existing installation
+to choose a release and overwrite that tool directory in place.
 
 The first installation creates `tool-config.json` beside the CMD entry points. Edit that
 file for the target project; later updates preserve it.

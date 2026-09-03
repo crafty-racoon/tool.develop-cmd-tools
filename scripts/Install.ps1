@@ -1,13 +1,18 @@
 param(
-    [Parameter(Mandatory = $true)][string]$ProjectRoot,
+    [string]$ProjectRoot,
+    [string]$Destination,
     [string]$Version,
     [string]$PackagePath,
     [string]$Repository = 'crafty-racoon/tool.develop-cmd-tools'
 )
 
 $ErrorActionPreference = 'Stop'
-[string]$project = (Resolve-Path -LiteralPath $ProjectRoot).Path
-[string]$destination = Join-Path $project 'tools/tool.develop-cmd-tools'
+if ([string]::IsNullOrWhiteSpace($Destination)) {
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { throw 'ProjectRoot or Destination is required.' }
+    [string]$project = (Resolve-Path -LiteralPath $ProjectRoot).Path
+    $Destination = Join-Path $project 'tools/tool.develop-cmd-tools'
+}
+[string]$destination = [IO.Path]::GetFullPath($Destination).TrimEnd('\', '/')
 [string]$temporaryRoot = Join-Path ([IO.Path]::GetTempPath()) ("develop-cmd-tools-install-{0}" -f [guid]::NewGuid().ToString('N'))
 
 try {
