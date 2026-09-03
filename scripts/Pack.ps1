@@ -16,7 +16,7 @@ try {
     Get-ChildItem -LiteralPath $toolRoot -Force | Where-Object {
         $_.Name -notin @('artifacts', '.git')
     } | Copy-Item -Destination $stagedTool -Recurse -Force
-    [string]$localConfig = Join-Path $stagedTool 'scripts/develop-cmd-tools.local.json'
+    [string]$localConfig = Join-Path $stagedTool 'tool-config.json'
     if (Test-Path -LiteralPath $localConfig) { Remove-Item -LiteralPath $localConfig -Force }
     Compress-Archive -LiteralPath $stagedTool -DestinationPath $archivePath -CompressionLevel Optimal -Force
     [string]$hash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()

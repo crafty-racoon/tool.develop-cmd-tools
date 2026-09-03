@@ -32,5 +32,5 @@ Run `Pack.cmd` to create a versioned ZIP and SHA-256 file. Run
 branch. Add `-Version 1.0.0` after the project path to install a release tag, or
 use `-PackagePath C:\path\to\package.zip` for an offline package.
 
-The first installation creates `scripts/develop-cmd-tools.local.json`. Edit that
+The first installation creates `tool-config.json` beside the CMD entry points. Edit that
 file for the target project; later updates preserve it.

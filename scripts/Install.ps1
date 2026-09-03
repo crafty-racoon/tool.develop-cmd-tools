@@ -52,17 +52,17 @@ try {
     }
     if ([string]::IsNullOrWhiteSpace($source)) { throw 'The package does not contain tool.develop-cmd-tools.' }
 
-    [string]$savedConfig = Join-Path $temporaryRoot 'develop-cmd-tools.local.json'
-    [string]$currentConfig = Join-Path $destination 'scripts/develop-cmd-tools.local.json'
+    [string]$savedConfig = Join-Path $temporaryRoot 'tool-config.json'
+    [string]$currentConfig = Join-Path $destination 'tool-config.json'
     if (Test-Path -LiteralPath $currentConfig -PathType Leaf) { Copy-Item -LiteralPath $currentConfig -Destination $savedConfig }
     if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Recurse -Force }
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-Item -LiteralPath $source -Destination $destination -Recurse
     if (Test-Path -LiteralPath $savedConfig -PathType Leaf) {
-        Copy-Item -LiteralPath $savedConfig -Destination (Join-Path $destination 'scripts/develop-cmd-tools.local.json')
+        Copy-Item -LiteralPath $savedConfig -Destination (Join-Path $destination 'tool-config.json')
     } else {
         Copy-Item -LiteralPath (Join-Path $destination 'scripts/develop-cmd-tools.json') `
-            -Destination (Join-Path $destination 'scripts/develop-cmd-tools.local.json')
+            -Destination (Join-Path $destination 'tool-config.json')
     }
     [object]$installed = Get-Content -LiteralPath (Join-Path $destination 'scripts/version.json') -Raw | ConvertFrom-Json
     Write-Host "Installed $($installed.name) $($installed.version) to $destination"

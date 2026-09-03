@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 [string]$root = (Resolve-Path -LiteralPath $ProjectRoot).Path
 [string]$toolRoot = $PSScriptRoot
-[string]$localConfigFile = Join-Path $toolRoot 'develop-cmd-tools.local.json'
+[string]$localConfigFile = Join-Path (Split-Path -Parent $toolRoot) 'tool-config.json'
 [string]$configFile = if (Test-Path -LiteralPath $localConfigFile -PathType Leaf) {
     $localConfigFile
 } else {
